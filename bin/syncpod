@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Syncpod CLI - Download audio from YouTube directly from command line
+# Usage: syncpod <youtube_url> [--path /path/to/save]
+# Example: syncpod "https://www.youtube.com/watch?v=9ZYjf3TC2LU" --path ~/Music
+
+PROJECT_DIR="/Users/pratikaher/Syncpod"
+VENV_PYTHON="$PROJECT_DIR/.venv/bin/python"
+
+if [ ! -f "$PROJECT_DIR/main.py" ]; then
+  echo "Error: Project directory not found at $PROJECT_DIR"
+  exit 1
+fi
+
+# Use venv python if available, otherwise fall back to system python
+if [ -x "$VENV_PYTHON" ]; then
+  PYTHON="$VENV_PYTHON"
+else
+  PYTHON="$(command -v python3 || command -v python)"
+  if [ -z "$PYTHON" ]; then
+    echo "Error: Python not found. Please install Python or activate the virtual environment."
+    exit 1
+  fi
+fi
+
+cd "$PROJECT_DIR" || { echo "Error: Could not change to project directory"; exit 1; }
+
+# Pass all arguments to main.py
+"$PYTHON" "$PROJECT_DIR/main.py" "$@"

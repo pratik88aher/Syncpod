@@ -3,6 +3,8 @@ import time
 from flask import Flask, render_template, request, jsonify
 import os
 from pathlib import Path
+import sys
+import argparse
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 * 1024  # 16GB max
@@ -95,5 +97,41 @@ def download():
     except Exception as e:
         return jsonify({'success': False, 'error': f"Error: {str(e)}"}), 500
 
-if __name__ == '__main__':
+def main():
+    """Main entry point that supports both CLI and web server modes"""
+    parser = argparse.ArgumentParser(
+        description='Syncpod - Download audio from YouTube videos'
+    )
+    parser.add_argument(
+        'url',
+        nargs='?',
+        default=None,
+        help='YouTube URL to download'
+    )
+    parser.add_argument(
+        '-p', '--path',
+        default=None,
+        help='Download path (default: ~/Desktop/IPOD_SONGS)'
+    )
+    parser.add_argument(
+        '--server',
+        action='store_true',
+        help='Run as web server (default behavior if no URL provided)'
+    )
+    
+    args = parser.parse_args()
+    
+    # If URL is provided, run in CLI mode
+    if args.url:
+        print(f"🎵 Downloading from: {args.url}")
+        success, message = download_best_audio(args.url, args.path)
+        print(message)
+        sys.exit(0 if success else 1)
+    
+    # Otherwise run web server
+    print("Starting Syncpod web server on http://127.0.0.1:5000")
     app.run(debug=True, host='127.0.0.1', port=5000)
+
+
+if __name__ == '__main__':
+    main()
