@@ -5,6 +5,9 @@ import os
 from pathlib import Path
 import sys
 import argparse
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 * 1024  # 16GB max
@@ -17,8 +20,9 @@ def download_best_audio(url, download_path=None, max_retries=3):
         # Use the provided path
         ipod_folder = os.path.expanduser(download_path)
     else:
-        # Use default IPOD_SONGS folder
-        ipod_folder = os.path.expanduser('/Users/pratikaher/Desktop/IPOD_SONGS')
+        # Use SYNCPOD_DOWNLOAD_DIR env var, or fall back to ~/Downloads
+        default_dir = os.environ.get('SYNCPOD_DOWNLOAD_DIR') or os.path.join(Path.home(), 'Downloads')
+        ipod_folder = os.path.expanduser(default_dir)
     
     # Create folder if it doesn't exist
     os.makedirs(ipod_folder, exist_ok=True)
@@ -54,8 +58,7 @@ def download_best_audio(url, download_path=None, max_retries=3):
                 ydl.download([url])
             location_text = download_path if download_path else "IPOD_SONGS folder"
             return True, f"✓ Download successful! MP3 file saved to {location_text}."
-        except Exception as e:
-            error_str = str(e)
+        except Exception:
             if attempt < max_retries - 1:
                 wait_time = 5 * (attempt + 1)
                 error_msg = f"Attempt {attempt + 1} failed. Retrying in {wait_time} seconds..."
@@ -111,7 +114,7 @@ def main():
     parser.add_argument(
         '-p', '--path',
         default=None,
-        help='Download path (default: ~/Desktop/IPOD_SONGS)'
+        help='Download path (default: $SYNCPOD_DOWNLOAD_DIR or ~/Downloads)'
     )
     parser.add_argument(
         '--server',
