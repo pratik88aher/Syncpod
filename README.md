@@ -70,14 +70,65 @@ syncpod --help
 
 ---
 
-## Installation
+## Setup
 
-The `syncpod` command is installed globally via the `bin/` entry point. To set it up from scratch:
+### 1. Install Python 3.9+
 
+Check if you already have it:
+```bash
+python3 --version
+```
+
+If not, download it from [python.org](https://www.python.org/downloads/) or via Homebrew:
+```bash
+brew install python
+```
+
+### 2. Install uv (package manager)
+
+`uv` is used to manage the virtual environment and dependencies:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### 3. Install ffmpeg
+
+ffmpeg handles the audio conversion to MP3. Install it via Homebrew:
+```bash
+brew install ffmpeg
+```
+
+Verify it's installed:
+```bash
+ffmpeg -version
+```
+
+### 4. Install Python dependencies
+
+From the project directory, run:
 ```bash
 cd /Users/pratikaher/Syncpod
 uv sync
-brew install ffmpeg
+```
+
+This creates a `.venv` folder and installs `yt-dlp` and `Flask` into it.
+
+### 5. Make the `syncpod` command available globally
+
+The `bin/syncpod` script is the entry point. Add it to your PATH so you can call `syncpod` from anywhere:
+```bash
+# Add this line to your ~/.zshrc or ~/.bashrc
+export PATH="/Users/pratikaher/Syncpod/bin:$PATH"
+```
+
+Then reload your shell:
+```bash
+source ~/.zshrc
+```
+
+Verify it works:
+```bash
+syncpod --help
 ```
 
 ---
@@ -86,5 +137,6 @@ brew install ffmpeg
 
 - Python 3.9+
 - ffmpeg (audio conversion)
-- yt-dlp (YouTube extraction)
-- Flask (web server mode)
+- uv (dependency management)
+- yt-dlp (YouTube extraction, installed via `uv sync`)
+- Flask (web server mode, installed via `uv sync`)
