@@ -8,7 +8,7 @@ Both modes use the same core download engine under the hood (`yt-dlp` + `ffmpeg`
 
 ## Web UI
 
-![Syncpod Web UI](assets/ui-screenshot.png)
+![Syncpod Web UI](assets/main_sc.png)
 
 ---
 
