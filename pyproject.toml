@@ -1,0 +1,10 @@
+[project]
+name = "syncpod"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "yt-dlp>=2024.10.22",
+    "flask>=2.3.0",
+]

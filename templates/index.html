@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syncpod - Download Songs</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#d2691e">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.15) 2px,
+                    rgba(0, 0, 0, 0.15) 4px
+                ),
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 35px,
+                    rgba(255, 255, 255, 0.05) 35px,
+                    rgba(255, 255, 255, 0.05) 70px
+                ),
+                repeating-linear-gradient(
+                    -45deg,
+                    transparent,
+                    transparent 35px,
+                    rgba(0, 0, 0, 0.08) 35px,
+                    rgba(0, 0, 0, 0.08) 70px
+                ),
+                linear-gradient(135deg, #f4a460 0%, #cd853f 25%, #d2691e 50%, #a0522d 75%, #8b4513 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 15% 30%, rgba(255, 255, 150, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 85% 70%, rgba(210, 105, 30, 0.2) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(160, 82, 45, 0.1) 0%, transparent 60%),
+                radial-gradient(ellipse at 10% 80%, rgba(255, 200, 100, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: glow 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0px,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.03) 2px,
+                    rgba(255, 255, 255, 0.03) 4px
+                );
+            pointer-events: none;
+            z-index: 0;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.95; }
+            50% { opacity: 1; }
+            100% { opacity: 0.95; }
+        }
+
+        body > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            background: #fffacd;
+            border: 4px solid #8b4513;
+            border-radius: 0;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.3), inset 0 0 10px rgba(139, 69, 19, 0.1);
+            padding: 40px; 
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(139, 69, 19, 0.05) 10px,
+                rgba(139, 69, 19, 0.05) 20px
+            );
+            border-radius: 0;
+            pointer-events: none;
+        }
+
+        h1 {
+            color: #8b4513;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #8b4513;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #8b4513;
+            font-weight: bold;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 3px solid #8b4513;
+            border-radius: 0;
+            font-size: 1em;
+            transition: all 0.2s ease;
+            font-family: 'Courier New', monospace;
+            background: #fff8dc;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #d2691e;
+            box-shadow: 3px 3px 0px #d2691e;
+        }
+
+        input[type="text"]::placeholder {
+            color: #a0826d;
+        }
+
+        .path-hint {
+            font-size: 0.8em;
+            color: #a0826d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #d2691e 0%, #8b4513 100%);
+            color: #fffacd;
+            border: 3px solid #8b4513;
+            border-radius: 0;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.1s ease;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translate(0, 0);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border: 2px solid #8b4513;
+            border-radius: 0;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.3s ease;
+            font-weight: bold;
+        }
+
+        .message.success {
+            background: #90ee90;
+            color: #2d5016;
+            border: 2px solid #8b4513;
+            display: block;
+        }
+
+        .message.error {
+            background: #ff9999;
+            color: #8b0000;
+            border: 2px solid #8b4513;
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #fffacd;
+            border-top: 4px solid #d2691e;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info {
+            background: #fff8dc;
+            border: 2px solid #d2691e;
+            border-radius: 0;
+            padding: 12px;
+            margin-bottom: 20px;
+            color: #8b4513;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Syncpod</h1>
+        <p class="subtitle">Download songs from any youtube URL</p>
+
+        <!-- Info banner removed as requested -->
+
+        <form id="downloadForm">
+            <div class="form-group">
+                <label for="urlInput">Song URL:</label>
+                <input
+                    type="text"
+                    id="urlInput"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="pathInput">Download Location (Optional):</label>
+                <input
+                    type="text"
+                    id="pathInput"
+                    placeholder="/Users/yourname/Music or ~/Downloads"
+                >
+                <div class="path-hint">Leave empty for default Downloads folder</div>
+            </div>
+            <button type="submit" id="downloadBtn">Download Song</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #8b4513; font-weight: bold;">Downloading... This may take a moment</p>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const urlInput = document.getElementById('urlInput');
+        const pathInput = document.getElementById('pathInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const message = document.getElementById('message');
+        const loading = document.getElementById('loading');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const url = urlInput.value.trim();
+            const downloadPath = pathInput.value.trim() || '';
+
+            if (!url) {
+                showMessage('Please enter a URL', 'error');
+                return;
+            }
+
+            // Clear previous messages
+            message.textContent = '';
+            message.className = 'message';
+
+            // Show loading state
+            loading.style.display = 'block';
+            downloadBtn.disabled = true;
+
+            try {
+                const response = await fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        url: url,
+                        download_path: downloadPath
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                    urlInput.value = '';
+                    pathInput.value = '';
+                } else {
+                    showMessage(data.error || 'Download failed', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error: ' + error.message, 'error');
+            } finally {
+                loading.style.display = 'none';
+                downloadBtn.disabled = false;
+            }
+        });
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = 'message ' + type;
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    message.className = 'message';
+                }, 5000);
+            }
+        }
+
+        // Focus the input on page load
+        urlInput.focus();
+    </script>
+</body>
+</html>
