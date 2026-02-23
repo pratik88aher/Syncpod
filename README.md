@@ -6,6 +6,12 @@ Both modes use the same core download engine under the hood (`yt-dlp` + `ffmpeg`
 
 ---
 
+## Web UI
+
+![Syncpod Web UI](assets/ui-screenshot.png)
+
+---
+
 ## How it works
 
 Syncpod accepts a YouTube URL, downloads the best available audio stream, and converts it to MP3 using ffmpeg. Files are saved to `~/Desktop/IPOD_SONGS` by default, or to any path you specify.
