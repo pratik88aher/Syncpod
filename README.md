@@ -140,3 +140,9 @@ syncpod --help
 - uv (dependency management)
 - yt-dlp (YouTube extraction, installed via `uv sync`)
 - Flask (web server mode, installed via `uv sync`)
+
+---
+
+## Feature Requests
+
+Have an idea or a feature request? Reach out at [pratikaher88@gmail.com](mailto:pratikaher88@gmail.com).
